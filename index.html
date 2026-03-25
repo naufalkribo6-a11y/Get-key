@@ -1,0 +1,92 @@
+!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Get Key System - tubles93</title>
+    <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #0f172a; color: white; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+        .container { background-color: #1e293b; padding: 2rem; border-radius: 12px; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.5); text-align: center; width: 90%; max-width: 400px; }
+        h2 { margin-bottom: 1.5rem; color: #38bdf8; }
+        .step-box { background: #334155; padding: 15px; border-radius: 8px; margin-bottom: 1rem; }
+        button { background-color: #38bdf8; color: #0f172a; border: none; padding: 12px 24px; border-radius: 6px; font-weight: bold; cursor: pointer; transition: 0.3s; width: 100%; margin-top: 10px; }
+        button:hover { background-color: #0ea5e9; }
+        button:disabled { background-color: #64748b; cursor: not-allowed; }
+        #key-display { font-family: monospace; background: #000; padding: 10px; margin-top: 10px; border-radius: 4px; display: none; word-break: break-all; color: #4ade80; }
+        .hidden { display: none; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>Key System</h2>
+    
+    <div id="step-container">
+        <div class="step-box">
+            <p id="status-text">Langkah 1 dari 4: Verifikasi</p>
+            <div id="captcha-box" class="cf-turnstile" data-sitekey="YOUR_SITE_KEY"></div>
+        </div>
+        <button id="next-btn" onclick="processStep()">Lanjut ke Langkah Berikutnya</button>
+    </div>
+
+    <div id="final-step" class="hidden">
+        <p>Key Anda Berhasil Dibuat!</p>
+        <div id="key-display"></div>
+        <button onclick="copyKey()">Copy Key</button>
+    </div>
+</div>
+
+<script>
+    let currentStep = 0;
+    const totalAds = 3;
+
+    function generateDailyKey() {
+        // Menggunakan tanggal hari ini (YYYY-MM-DD) sebagai dasar pengacak
+        const date = new Date().toISOString().slice(0, 10);
+        const seed = "tubles93_" + date;
+        
+        // Fungsi hashing sederhana untuk mengubah teks menjadi kode acak
+        let hash = 0;
+        for (let i = 0; i < seed.length; i++) {
+            hash = ((hash << 5) - hash) + seed.charCodeAt(i);
+            hash |= 0; 
+        }
+        return "KEY-" + Math.abs(hash).toString(16).toUpperCase();
+    }
+
+    function processStep() {
+        if (currentStep < totalAds) {
+            currentStep++;
+            document.getElementById('status-text').innerText = `Melewati Iklan (${currentStep}/${totalAds})`;
+            
+            // Simulasi melewati iklan (Buka link iklan)
+            window.open("https://www.linkvertise.com", "_blank"); // Ganti dengan link iklan Anda
+            
+            if (currentStep === totalAds) {
+                document.getElementById('status-text').innerText = "Verifikasi Selesai!";
+                document.getElementById('next-btn').innerText = "Dapatkan Key";
+            }
+        } else {
+            showKey();
+        }
+    }
+
+    function showKey() {
+        document.getElementById('step-container').classList.add('hidden');
+        document.getElementById('final-step').classList.remove('hidden');
+        const keyBox = document.getElementById('key-display');
+        keyBox.style.display = "block";
+        keyBox.innerText = generateDailyKey();
+    }
+
+    function copyKey() {
+        const keyText = document.getElementById('key-display').innerText;
+        navigator.clipboard.writeText(keyText).then(() => {
+            alert("Key berhasil disalin ke clipboard!");
+        });
+    }
+</script>
+
+</body>
+</html>
